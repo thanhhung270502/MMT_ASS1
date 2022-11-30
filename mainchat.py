@@ -10,16 +10,17 @@ import requests
 import sys
 from connect import *
 from listenner import *
-import pymysql
+import pymysql, pickle
 
 
-
+HEADER_LENGTH = 10
     
 class Peer(QtWidgets.QMainWindow):
     startListen=Signal(bool)
     def __init__(self):
         super().__init__()
         #Slot 0 bắt buộc phải là của server
+
         con = pymysql.connect(host="localhost", user="root",
                               password="", database="mmt")
         cur = con.cursor()
@@ -27,6 +28,41 @@ class Peer(QtWidgets.QMainWindow):
 
         rows = cur.fetchall()
         lists = [list(x) for x in rows]
+
+        print("Start Client....")
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect(("localhost", 8082))
+
+        message = {}
+        message["method"] = "show"
+
+        msg = pickle.dumps(message)
+        msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+
+        client_socket.send(msg)
+
+        data = client_socket.recv(1024)
+        mes = data.decode()
+        print(mes)
+        print(type(mes))
+
+        # data_res = pickle.loads(data)
+        # print(data_res)
+        # print(type(data_res))
+
+        client_socket.close()
+
+        # abc = "Send request"
+        # client_socket.send(abc.encode())
+
+        # header_length = client_socket.recv(11)
+        # message_length = int(header_length.decode("utf-8").strip())
+        # data_res = client_socket.recv(message_length)
+        # data_res = pickle.loads(data_res)
+
+        # print("show list")
+        # print(data_res)
+        # print(type(data_res))
 
         self.friends = lists
 
