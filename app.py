@@ -1,18 +1,16 @@
-import res
 import sys
-import UI_windowchat
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QApplication, QMainWindow, QPushButton
 from subprocess import call
 from tkinter import *
-import tkinter as tk
-from tkinter import ttk, messagebox
-import pymysql
-import socket, pickle 
+import socket
+import pickle
 
 HEADER_LENGTH = 10
+serverIP="0.0.0.0"
 
 class Ui_LogIn(object):
+
     def setupUi(self, LogIn):
         LogIn.setObjectName("LogIn")
         LogIn.resize(850, 750)
@@ -223,7 +221,7 @@ class Ui_LogIn(object):
             message["ip"] = ip_address
 
             msg = pickle.dumps(message)
-            msg = bytes(f"{len(msg):<{HEADER_LENGTH}}","utf-8") + msg
+            msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
 
             client_socket.send(msg)
 
@@ -244,115 +242,12 @@ class Ui_LogIn(object):
 
             print("End Client....")
 
-
-            # con = pymysql.connect(
-            #     host="localhost", user="root", password="", database="docterapp")
-            # cur = con.cursor()
-
-            # cur.execute("select * from user_information where username=%s and password = %s",
-            #             (self.Username.text(), self.Password.text()))
-            # row = cur.fetchone()
-
-            # if row == None:
-            #     mess = QMessageBox()
-            #     mess.setIcon(QMessageBox.Warning)
-            #     mess.setText("Invalid User Name And Password")
-            #     mess.exec_()
-            # else:
-            #     print("Start Client....")
-            #     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #     client_socket.connect(("localhost", 8082))
-
-            #     message = {}
-            #     message["user_name"] = self.Username.text()
-            #     message["password"] = self.Password.text()
-
-            #     msg = pickle.dumps(message)
-            #     msg = bytes(f"{len(msg):<{HEADER_LENGTH}}","utf-8") + msg
-
-            #     client_socket.send(msg)
-
-            #     text = client_socket.recv(1024)
-            #     response = text.decode()
-            #     print(response)
-
-            #     client_socket.close()
-
-            #     print("End Client....")
-                
-            #     self.LogIn.close()
-            #     call(["python", "mainchat.py"])
-            
-            # con.close()
+    def signup(self):
+        call("python", "signup.py")
         
-            
 
     def exit(self):
         self.LogIn.close()
-    def signup(self):
-        if self.name.text() == "" or self.Username.text()=="" or self.Password.text()=="" or self.PasswordConfirmation.text()=="":
-            messagebox.showerror("Error" , "All Fields Are Required" , parent = winsignup)
-        elif self.Password.text() != self.PasswordConfirmation.text():
-            messagebox.showerror("Error" , "Password & Confirm Password Should Be Same" , parent = winsignup)
-        else:
-            # try:
-            #     con = pymysql.connect(host="localhost",user="root",password="",database="mmt")
-            #     cur = con.cursor()
-            #     cur.execute("select * from user_information where username=%s", self.Username.text())
-            #     row = cur.fetchone()
-            #     if row!=None:
-            #         messagebox.showerror("Error" , "User Name Already Exits", parent = winsignup)
-            #     else:
-            #         cur.execute("insert into user_information(name,username,password) values(%s,%s,%s)",
-            #             (
-            #             self.name.text(),
-            #             self.Username.text(),
-            #             self.Password.text()
-            #             ))
-            #         con.commit()
-            #         con.close()
-            #         messagebox.showinfo("Success" , "Registration Successful" , parent = winsignup)
-            #         clear()
-            #         switch()
-				
-            # except Exception as es:
-            #     messagebox.showerror("Error" , f"Error Dui to : {str(es)}", parent = winsignup)
-            print("Start Client....")
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect(("localhost", 8082))
-            hostname = socket.gethostname()
-            ip_address = socket.gethostbyname(hostname)
-            print(hostname)
-            print(ip_address)
-
-            message = {}
-            message["method"] = "signup"
-            message["user_name"] = self.Username.text()
-            message["password"] = self.Password.text()
-            message["ip"] = ip_address
-
-            msg = pickle.dumps(message)
-            msg = bytes(f"{len(msg):<{HEADER_LENGTH}}","utf-8") + msg
-
-            client_socket.send(msg)
-
-            text = client_socket.recv(1024)
-            response = text.decode()
-            print(response)
-
-            if (response == "Not"):
-                mess = QMessageBox()
-                mess.setIcon(QMessageBox.Warning)
-                mess.setText("Invalid User Name And Password")
-                mess.exec_()
-            else:
-                self.LogIn.close()
-                call(["python", "mainchat.py"])
-
-            client_socket.close()
-            con.close()
-
-            print("End Client....")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
@@ -361,3 +256,4 @@ if __name__ == "__main__":
     ui.setupUi(LogIn)
     LogIn.show()
     sys.exit(app.exec_())
+        
