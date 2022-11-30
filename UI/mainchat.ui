@@ -335,6 +335,30 @@ color: white;</string>
      <string/>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>600</y>
+      <width>60</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: blue;
+color: white;</string>
+    </property>
+    <property name="text">
+     <string>File</string>
+    </property>
+   </widget>
    <zorder>avatar</zorder>
    <zorder>textBrowser</zorder>
    <zorder>IP</zorder>
@@ -343,6 +367,7 @@ color: white;</string>
    <zorder>label_3</zorder>
    <zorder>lineEdit</zorder>
    <zorder>pushButton</zorder>
+   <zorder>pushButton_2</zorder>
   </widget>
  </widget>
  <resources/>
