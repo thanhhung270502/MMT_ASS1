@@ -1,10 +1,10 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QVBoxLayout
-from UI_listfriend import *
+from addfriend import *
 import pymysql
-import UI_windowchat
-import threading
+import numpy as np
+
 
 class WidgetWrap(QtWidgets.QMainWindow):
     def __init__(self):
@@ -16,7 +16,7 @@ class Peer():
         con = pymysql.connect(
             host="localhost", user="root", password="", database="mmt")
         cur = con.cursor()
-        cur.execute("select id,name,ip,picture from user")
+        cur.execute("select id, name, ip, image from user")
         rows = cur.fetchall()
         lists = [list(x) for x in rows]
         self.friends= lists
@@ -24,10 +24,10 @@ class Peer():
 
     def createUI(self):
         app = QtWidgets.QApplication(sys.argv)
-        AddFriend = WidgetWrap()
+        Addfriend = WidgetWrap()
         ui = Ui_Addfriend()
-        ui.setupUi(AddFriend, self.friends)
-        AddFriend.show()
+        ui.setupUi(Addfriend, self.friends)
+        Addfriend.show()
         sys.exit(app.exec_())
 
 

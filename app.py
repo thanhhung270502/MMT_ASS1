@@ -3,7 +3,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QApplication, QMainWindow, QPushButton
 from subprocess import call
 from tkinter import *
-import socket, pickle 
+import socket
+import pickle
 
 HEADER_LENGTH = 10
 serverIP="0.0.0.0"
@@ -220,7 +221,7 @@ class Ui_LogIn(object):
             message["ip"] = ip_address
 
             msg = pickle.dumps(message)
-            msg = bytes(f"{len(msg):<{HEADER_LENGTH}}","utf-8") + msg
+            msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
 
             client_socket.send(msg)
 
@@ -239,7 +240,11 @@ class Ui_LogIn(object):
 
             client_socket.close()
 
-            print("End Client....")            
+            print("End Client....")
+
+    def signup(self):
+        call("python", "signup.py")
+        
 
     def exit(self):
         self.LogIn.close()
@@ -251,3 +256,4 @@ if __name__ == "__main__":
     ui.setupUi(LogIn)
     LogIn.show()
     sys.exit(app.exec_())
+        

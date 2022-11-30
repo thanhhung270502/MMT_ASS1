@@ -1,6 +1,6 @@
 import pymysql
-import socket, pickle
-import threading
+import socket
+import pickle 
 
 HEADER_LENGTH = 10
 
@@ -28,7 +28,7 @@ message["status"] = 1
 print(message)
 
 con = pymysql.connect(
-    host="localhost", user="root", password="bucsehcmut2002", database="p2pchat")
+    host="localhost", user="root", password="", database="mmt")
 cur = con.cursor()
 print(message["method"])
 
@@ -45,7 +45,7 @@ if message["method"] == "login":
         text = "Ok"
         connection_socket.send(text.encode())
 else:
-    cur.execute("INSERT INTO user (name, username, password, IP, status) values (%s, %s, %s, %s, 1)", (message["name"], message["user_name"], message["password"], message["ip"]))
+    cur.execute("INSERT INTO user (name, username, password, IP, status, image) values (%s, %s, %s, %s, 1, 'https://genk.mediacdn.vn/k:thumb_w/640/2016/photo-1-1473821552147/top6suthatcucsocvepikachu.jpg')", (message["name"], message["user_name"], message["password"], message["ip"]))
     con.commit()
     print("Sign up successfully!!")
 
