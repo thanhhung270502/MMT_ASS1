@@ -1,9 +1,11 @@
-import res
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QApplication, QMainWindow, QPushButton
 from subprocess import call
+from tkinter import *
+import socket, pickle 
 
+HEADER_LENGTH = 10
 serverIP="0.0.0.0"
 
 class Ui_LogIn(object):
@@ -194,21 +196,53 @@ class Ui_LogIn(object):
             "LogIn", "Have a good day with your friend!"))
         self.BtExit.clicked.connect(self.exit)
         self.BtSignIn.clicked.connect(self.signin)
+        self.BtSignUp.clicked.connect(self.signup)
 
     def signin(self):
-        if self.Username.text() == "admin" and self.Password.text() == "admin":
-            self.LogIn.close()
-            call(["python", "mainchat.py"])
-        else:
+        if self.Username.text() == "" or self.Password.text() == "":
             mess = QMessageBox()
             mess.setIcon(QMessageBox.Warning)
-            mess.setText("Sai tài khoản hoặc mật khẩu")
-
+            mess.setText("Enter User Name And Password")
             mess.exec_()
+        else:
+            print("Start Client....")
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect(("localhost", 8082))
+            hostname = socket.gethostname()
+            ip_address = socket.gethostbyname(hostname)
+            print(hostname)
+            print(ip_address)
+
+            message = {}
+            message["method"] = "login"
+            message["user_name"] = self.Username.text()
+            message["password"] = self.Password.text()
+            message["ip"] = ip_address
+
+            msg = pickle.dumps(message)
+            msg = bytes(f"{len(msg):<{HEADER_LENGTH}}","utf-8") + msg
+
+            client_socket.send(msg)
+
+            text = client_socket.recv(1024)
+            response = text.decode()
+            print(response)
+
+            if (response == "Not"):
+                mess = QMessageBox()
+                mess.setIcon(QMessageBox.Warning)
+                mess.setText("Invalid User Name And Password")
+                mess.exec_()
+            else:
+                self.LogIn.close()
+                call(["python", "mainchat.py"])
+
+            client_socket.close()
+
+            print("End Client....")            
 
     def exit(self):
         self.LogIn.close()
-
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
