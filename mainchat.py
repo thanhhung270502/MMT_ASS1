@@ -47,31 +47,23 @@ class Peer(QtWidgets.QMainWindow):
         print(mes)
         print(type(mes))
 
+        
+        arr=mes.split("], [")
+        arr[0]=arr[0][2:]
+        arr[-1]=arr[-1][:-2]
+        for i in range(len(arr)):
+            arr[i]=arr[i].split(', ')
+            for ii in range(4):
+                arr[i][ii]=arr[i][ii].strip("\"")
+            arr[i][0]=int(arr[i][0])
+
         # data_res = pickle.loads(data)
         # print(data_res)
         # print(type(data_res))
 
         client_socket.close()
 
-        # abc = "Send request"
-        # client_socket.send(abc.encode())
-
-        # header_length = client_socket.recv(11)
-        # message_length = int(header_length.decode("utf-8").strip())
-        # data_res = client_socket.recv(message_length)
-        # data_res = pickle.loads(data_res)
-
-        # print("show list")
-        # print(data_res)
-        # print(type(data_res))
-
-        self.friends=[
-            [0,'Jack',"192.168.1.6",'https://e1.pngegg.com/pngimages/401/429/png-clipart-sharingan-all-files-mangekyo-sharingan.png'],
-            [1,'Alice',"192.168.1.4",'https://www.stockvault.net//data/2018/08/28/254043/thumb16.jpg'],
-            [2,'',"",''],
-            [3,'',"",''],
-            [4,'',"",'']
-        ]
+        self.friends=arr
 
         ####Init Listenner####
         self.serverPort=12000
