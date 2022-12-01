@@ -8,6 +8,7 @@ import requests
 import socket
 import pickle
 import sys
+import time
 
 HEADER_LENGTH=10
 
@@ -19,6 +20,7 @@ class UI_AddFriend(QtWidgets.QMainWindow):
         self.serverIP=serverIP
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((self.serverIP, 8082))
+
         self.list=[]
 
         message = {}
@@ -45,7 +47,7 @@ class UI_AddFriend(QtWidgets.QMainWindow):
                 arr[i]=arr[i].split(', ')
                 for ii in range(4):
                     arr[i][ii]=arr[i][ii].strip("\"")
-                arr[i][0]=i+1
+                arr[i][0]=i
                 
             for user in arr:
                 self.list.append(user)
@@ -61,9 +63,9 @@ class UI_AddFriend(QtWidgets.QMainWindow):
 
 
     def render(self):
-        Addfriend = QtWidgets.QDialog()
-        self.setupUi(Addfriend)
-        Addfriend.show()
+        
+        self.setupUi(self,self.list)
+        self.show()
 
 
     def setupUi(self, Addfriend, List):
@@ -157,32 +159,131 @@ class UI_AddFriend(QtWidgets.QMainWindow):
             self.scrollAreaWidgetContents_2)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
 
+        self.outer_frameList=[]
         self.addList = []
         self.name = []
         self.OnOffList = []
+        self.displayUI()
+
+        self.Scroll_Area.setWidget(self.scrollAreaWidgetContents_2)
+        self.Scroll_Area.raise_()
+        self.retranslateUi(Addfriend)
+        QtCore.QMetaObject.connectSlotsByName(Addfriend)
+
+    def retranslateBt(self, arr):
+        _translate_ = QtCore.QCoreApplication.translate
+        self.addList[arr[0]].setText(_translate_("Addfriend", "Add"))
+        if (arr[1] == ''):
+            self.name[arr[0]].setText(_translate_(
+                "Addfriend", "Chưa có user nào đăng ký"))
+        else:
+            self.name[arr[0]].setText(_translate_("Addfriend", arr[1]))
+
+        self.OnOffList[arr[0]].setText(_translate_("Addfriend", "Online"))
+
+    def retranslateUi(self, Addfriend):
+        _translate = QtCore.QCoreApplication.translate
+        Addfriend.setWindowTitle(_translate("Addfriend", "Addfriend"))
+        self.Add.setText(_translate("Addfriend", "Add"))
+
+    
+    def addfriend(self,arr):
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((self.serverIP, 8082))
+
+        message = {}
+        message["method"] = "addfriend"
+        message["id"]=self.id
+        message["friend_name"]=arr[1]
+
+        msg = pickle.dumps(message)
+        msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+
+        client_socket.send(msg)
+        data = client_socket.recv(2048)
+        mes = data.decode()
+        print(mes)
+        print(type(mes))
+        client_socket.close()
+        self.refresh()
+
+    def refresh(self):
+        for outer_frame in self.outer_frameList:
+            outer_frame.setParent(None)
+        self.outer_frameList.clear()
+        self.addList.clear()
+        self.name.clear()
+        self.OnOffList.clear()
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((self.serverIP, 8082))
+
+        self.list=[]
+
+        message = {}
+        message["method"] = "showall"
+        message["id"]=self.id
+        message["ip"]=socket.gethostbyname(socket.gethostname())
+
+        msg = pickle.dumps(message)
+        msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+
+        client_socket.send(msg)
+
+        data = client_socket.recv(2048)
+        mes = data.decode()
+        print(mes)
+        print(type(mes))
+        
+        if(mes!="[]"):
+            arr=mes.split("], [")
+            arr[0]=arr[0][2:]
+            arr[-1]=arr[-1][:-2]
+            
+            for i in range(len(arr)):
+                arr[i]=arr[i].split(', ')
+                for ii in range(4):
+                    arr[i][ii]=arr[i][ii].strip("\"")
+                arr[i][0]=i
+                
+            for user in arr:
+                self.list.append(user)
+
+        # data_res = pickle.loads(data)
+        # print(data_res)
+        # print(type(data_res))
+
+        client_socket.close()
+
+        self.displayUI()
+
+
+
+    def displayUI(self):
+        List=self.list
         for i in range(len(List)):
             arr = List[i]
-            self.Outer_frame = QtWidgets.QFrame(
+            Outer_frame = QtWidgets.QFrame(
                 self.scrollAreaWidgetContents_2)
             sizePolicy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
             sizePolicy.setHorizontalStretch(0)
             sizePolicy.setVerticalStretch(0)
             sizePolicy.setHeightForWidth(
-                self.Outer_frame.sizePolicy().hasHeightForWidth())
-            self.Outer_frame.setSizePolicy(sizePolicy)
-            self.Outer_frame.setMinimumSize(QtCore.QSize(343, 100))
+                Outer_frame.sizePolicy().hasHeightForWidth())
+            Outer_frame.setSizePolicy(sizePolicy)
+            Outer_frame.setMinimumSize(QtCore.QSize(343, 100))
             palette = QtGui.QPalette()
-            self.Outer_frame.setPalette(palette)
-            self.Outer_frame.setAutoFillBackground(True)
-            self.Outer_frame.setStyleSheet("background-color: rgb(#aaaaff);\n"
+            Outer_frame.setPalette(palette)
+            Outer_frame.setAutoFillBackground(True)
+            Outer_frame.setStyleSheet("background-color: rgb(#aaaaff);\n"
                                            "")
-            self.Outer_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-            self.Outer_frame.setFrameShadow(QtWidgets.QFrame.Raised)
-            self.Outer_frame.setObjectName("Outer_frame" + str(arr[0]))
+            Outer_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+            Outer_frame.setFrameShadow(QtWidgets.QFrame.Raised)
+            Outer_frame.setObjectName("Outer_frame" + str(arr[0]))
 
             # Background
-            self.Layer = QtWidgets.QLabel(self.Outer_frame)
+            self.Layer = QtWidgets.QLabel(Outer_frame)
             self.Layer.setEnabled(True)
             self.Layer.setGeometry(QtCore.QRect(0, 0, 511, 100))
             self.Layer.setMinimumSize(QtCore.QSize(0, 100))
@@ -219,7 +320,7 @@ class UI_AddFriend(QtWidgets.QMainWindow):
             self.Layer.setObjectName("Layer" + str(arr[0]))
 
             # Button frame
-            self.Button_frame = QtWidgets.QFrame(self.Outer_frame)
+            self.Button_frame = QtWidgets.QFrame(Outer_frame)
             self.Button_frame.setGeometry(QtCore.QRect(330, 30, 141, 51))
             self.Button_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
             self.Button_frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -230,10 +331,11 @@ class UI_AddFriend(QtWidgets.QMainWindow):
 
             self.Add = QtWidgets.QPushButton(self.Button_frame)
             self.Add.setObjectName(str(arr[0]))
+            self.Add.clicked.connect(lambda x,ip=arr:self.addfriend(ip))
             self.horizontalLayout_31.addWidget(self.Add)
 
             # Information
-            self.Info = QtWidgets.QFrame(self.Outer_frame)
+            self.Info = QtWidgets.QFrame(Outer_frame)
             self.Info.setGeometry(QtCore.QRect(10, 10, 200, 81))
             self.Info.setMinimumSize(QtCore.QSize(200, 0))
             self.Info.setStyleSheet("#Info{\n"
@@ -310,30 +412,15 @@ class UI_AddFriend(QtWidgets.QMainWindow):
             self.horizontalLayout_33.addWidget(self.OnOff)
             self.verticalLayout_12.addWidget(self.Status)
             self.horizontalLayout_32.addWidget(self.InfoBox)
-            self.verticalLayout_2.addWidget(self.Outer_frame)
+            self.verticalLayout_2.addWidget(Outer_frame)
+            self.outer_frameList.append(Outer_frame)
             self.addList.append(self.Add)
             self.name.append(Name)
             self.OnOffList.append(self.OnOff)
             self.retranslateBt(arr)
+    
+    def closeEvent(self,event):
+        print("exit")
 
-        self.Scroll_Area.setWidget(self.scrollAreaWidgetContents_2)
-        self.Scroll_Area.raise_()
-        self.retranslateUi(Addfriend)
-        QtCore.QMetaObject.connectSlotsByName(Addfriend)
 
-    def retranslateBt(self, arr):
-        _translate_ = QtCore.QCoreApplication.translate
-        self.addList[arr[0]].setText(_translate_("Addfriend", "Add"))
-        if (arr[1] == ''):
-            self.name[arr[0]].setText(_translate_(
-                "Addfriend", "Chưa có user nào đăng ký"))
-        else:
-            self.name[arr[0]].setText(_translate_("Addfriend", arr[1]))
-
-        self.OnOffList[arr[0]].setText(_translate_("Addfriend", "Online"))
-
-    def retranslateUi(self, Addfriend):
-        _translate = QtCore.QCoreApplication.translate
-        Addfriend.setWindowTitle(_translate("Addfriend", "Addfriend"))
-        self.Add.setText(_translate("Addfriend", "Add"))
 

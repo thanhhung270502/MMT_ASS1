@@ -82,6 +82,9 @@ def server_showall(mess):
     # connection_socket.send(data)
     send_text(connection_socket, jsonStr)
 
+def server_addfriend(self):
+    pass
+
 while 1:
     connection_socket, addr = server_socket.accept()
 
@@ -110,6 +113,9 @@ while 1:
     elif message["method"]=="showall":
         showAllThread=threading.Thread(target=server_showall,args=(message,))
         showAllThread.start()
+    elif message["method"]=="addfriend":
+        addFriendThread=threading.Thread(target=server_addfriend,args=(message,))
+        addFriendThread.start()
 
 connection_socket.close()
 server_socket.close()
