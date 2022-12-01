@@ -475,7 +475,46 @@ class Peer(QtWidgets.QMainWindow):
             self.OnOffList.pop(0)
             self.name.pop(0)
 
+
         self.friends=[]
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((serverIP, 8082))
+
+        message = {}
+        message["method"] = "show"
+        message["id"]=self.id
+        message["ip"]=socket.gethostbyname(socket.gethostname())
+
+        msg = pickle.dumps(message)
+        msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+
+        client_socket.send(msg)
+
+        data = client_socket.recv(1024)
+        mes = data.decode()
+        print(mes)
+        print(type(mes))
+        
+        self.friends=[[0,'Server',serverIP,""]]
+        if(mes!="[]"):
+            arr=mes.split("], [")
+            arr[0]=arr[0][2:]
+            arr[-1]=arr[-1][:-2]
+            
+            for i in range(len(arr)):
+                arr[i]=arr[i].split(', ')
+                for ii in range(4):
+                    arr[i][ii]=arr[i][ii].strip("\"")
+                arr[i][0]=i+1
+                
+            for user in arr:
+                self.friends.append(user)
+
+        # data_res = pickle.loads(data)
+        # print(data_res)
+        # print(type(data_res))
+
+        client_socket.close()
         self.display()
         
         
