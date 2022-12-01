@@ -56,7 +56,7 @@ def server_signup(message):
     cur.execute("select * from user where username = %s", (message["user_name"]))
     row = cur.fetchone()
     if row == None:
-        cur.execute("INSERT INTO user (name, username, password, IP, status) values (%s, %s, %s, %s, 1)", (message["name"], message["user_name"], message["password"], message["ip"]))
+        cur.execute("INSERT INTO user (name, username, password, IP, status, image) values (%s, %s, %s, %s, 1, 'https://genk.mediacdn.vn/k:thumb_w/640/2016/photo-1-1473821552147/top6suthatcucsocvepikachu.jpg')", (message["name"], message["user_name"], message["password"], message["ip"]))
         con.commit()
         text = "Ok"
         print("Sign up successfully!!")
