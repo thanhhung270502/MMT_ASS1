@@ -38,6 +38,7 @@ class Peer(QtWidgets.QMainWindow):
 
         message = {}
         message["method"] = "show"
+        message["id"]=self.id
         message["ip"]=socket.gethostbyname(socket.gethostname())
 
         msg = pickle.dumps(message)
