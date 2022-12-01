@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QImage,QPixmap
 
-from PyQt5.QtCore import QThread, pyqtSignal as Signal
+from PyQt5.QtCore import QThread, QTimer, pyqtSignal as Signal
 
 from subprocess import call
 import requests
@@ -10,7 +10,7 @@ import requests
 import sys
 from connect import *
 from listenner import *
-import pymysql, pickle
+import pickle
 from UI_listfriend import *
 
 
@@ -23,15 +23,10 @@ class Peer(QtWidgets.QMainWindow):
         self.id=id
         self.user=username
         self.serverIP=serverIP
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.refresh)
+        self.timer.start(3000)
         #Slot 0 bắt buộc phải là của server
-
-        #con = pymysql.connect(host="localhost", user="root",
-        #                      password="", database="mmt")
-        #cur = con.cursor()
-        #cur.execute("select id, name, IP, image from user")
-
-        #rows = cur.fetchall()
-        #lists = [list(x) for x in rows]
 
         print("Start Client....")
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -527,8 +522,6 @@ class Peer(QtWidgets.QMainWindow):
     def addFr(self):
         self.addUI=UI_AddFriend(self.id,self.serverIP)
 
-    
-
     def display(self):
         for arr in (self.friends):
             if(arr[0]==0): continue
@@ -708,4 +701,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     print(sys.argv)
     peer=Peer(int(sys.argv[1]),sys.argv[2],sys.argv[3])
+
+    timer = QTimer()
+
     sys.exit(app.exec_())
