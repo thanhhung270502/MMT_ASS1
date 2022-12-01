@@ -67,6 +67,7 @@ def server_signup(message):
 
 
 def server_logout(mess):
+
     # print("UPDATE user SET IP = %s WHERE id = %i", ("0.0.0.0", int(mess["id"])))
     cur.execute("UPDATE user SET IP = %s WHERE id = %s", ("0.0.0.0", int(mess["id"])))
     con.commit()

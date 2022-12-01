@@ -50,17 +50,21 @@ class Peer(QtWidgets.QMainWindow):
         mes = data.decode()
         print(mes)
         print(type(mes))
-
+        
         self.friends=[[0,'Server',serverIP,""]]
-
-        arr=mes.split("], [")
-        arr[0]=arr[0][2:]
-        arr[-1]=arr[-1][:-2]
-        for i in range(len(arr)):
-            arr[i]=arr[i].split(', ')
-            for ii in range(4):
-                arr[i][ii]=arr[i][ii].strip("\"")
-            arr[i][0]=i+1
+        if(mes!="[]"):
+            arr=mes.split("], [")
+            arr[0]=arr[0][2:]
+            arr[-1]=arr[-1][:-2]
+            
+            for i in range(len(arr)):
+                arr[i]=arr[i].split(', ')
+                for ii in range(4):
+                    arr[i][ii]=arr[i][ii].strip("\"")
+                arr[i][0]=i+1
+                
+            for user in arr:
+                self.friends.append(user)
 
         # data_res = pickle.loads(data)
         # print(data_res)
@@ -68,8 +72,7 @@ class Peer(QtWidgets.QMainWindow):
 
         client_socket.close()
 
-        for user in arr:
-            self.friends.append(user)
+        
         
         ####Init Listenner####
         self.serverPort=12000
@@ -426,7 +429,7 @@ class Peer(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("AppChat", "Appchat"))
         self.SetPicture.setText(_translate("AppChat", "   SET PICTURE"))
-        self.Username.setText(_translate("AppChat", "Username"))
+        self.Username.setText(_translate("AppChat", self.user))
         self.Status.setItemText(0, _translate("AppChat", "Online"))
         self.Status.setItemText(1, _translate("AppChat", "Busy"))
         self.Status.setItemText(2, _translate("AppChat", "Offline"))
