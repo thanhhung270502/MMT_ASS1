@@ -82,6 +82,7 @@ def server_showall(mess):
     # connection_socket.send(data)
     send_text(connection_socket, jsonStr)
 
+
 def server_addfriend(message, connect_socket2):
     print(message)
     cur.execute("select * from user where name = %s", (message["friend_name"]))
@@ -94,6 +95,7 @@ def server_addfriend(message, connect_socket2):
     con.commit()
     print("Add successfully!!")
     connect_socket2.send("hello".encode())
+
 
 while 1:
     connection_socket, addr = server_socket.accept()
