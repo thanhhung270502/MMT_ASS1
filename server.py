@@ -24,7 +24,7 @@ server_socket.bind((HOST, PORT))
 server_socket.listen(5)
 print('Start Server...')
 
-def server_login(mess):
+def server_login(message):
     cur.execute("select * from user where username=%s and password = %s and status = 1",
                 (message["user_name"], message["password"]))
     row = cur.fetchone()
@@ -35,11 +35,15 @@ def server_login(mess):
     else:
         cur.execute("UPDATE user SET IP = %s WHERE username = %s and password = %s", (message["ip"], message["user_name"], message["password"]))
         con.commit()
-        text = "Ok"
+        cur.execute("SELECT * FROM user WHERE username = %s and password = %s", (message["user_name"], message["password"]))
+        row = cur.fetchone()
+        print(row[0])
+        text = str(row[0])
         connection_socket.send(text.encode())
 
-def server_show(mess):
+def server_show(message):
     cur.execute("select id, name, IP, image from user")
+    # cur.execute("select id from user where id in (select id from friend where user_id = %s)", (message))
     rows = cur.fetchall()
     lists = [list(x) for x in rows]
     jsonStr = json.dumps(lists)
@@ -48,11 +52,19 @@ def server_show(mess):
     # connection_socket.send(data)
     send_text(connection_socket, jsonStr)
 
-def server_signup(mess):
-    # cur.execute("select ")
-    cur.execute("INSERT INTO user (name, username, password, IP, status) values (%s, %s, %s, %s, 1)", (message["name"], message["user_name"], message["password"], message["ip"]))
-    con.commit()
-    print("Sign up successfully!!")
+def server_signup(message):
+    cur.execute("select * from user where username = %s", (message["user_name"]))
+    row = cur.fetchone()
+    if row == None:
+        cur.execute("INSERT INTO user (name, username, password, IP, status) values (%s, %s, %s, %s, 1)", (message["name"], message["user_name"], message["password"], message["ip"]))
+        con.commit()
+        text = "Ok"
+        print("Sign up successfully!!")
+        connection_socket.send(text.encode())
+    else:
+        text = "Not"
+        connection_socket.send(text.encode())
+
 
 while 1:
     connection_socket, addr = server_socket.accept()
