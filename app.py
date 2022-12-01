@@ -1,3 +1,4 @@
+import res
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QApplication, QMainWindow, QPushButton
@@ -7,7 +8,8 @@ import socket
 import pickle
 
 HEADER_LENGTH = 10
-serverIP="0.0.0.0"
+serverIP = "0.0.0.0"
+
 
 class Ui_LogIn(object):
 
@@ -245,10 +247,10 @@ class Ui_LogIn(object):
 
     def signup(self):
         call("python", "signup.py")
-        
 
     def exit(self):
         self.LogIn.close()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
@@ -257,4 +259,3 @@ if __name__ == "__main__":
     ui.setupUi(LogIn)
     LogIn.show()
     sys.exit(app.exec_())
-        
