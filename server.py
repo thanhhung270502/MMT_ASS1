@@ -82,8 +82,18 @@ def server_showall(mess):
     # connection_socket.send(data)
     send_text(connection_socket, jsonStr)
 
-def server_addfriend(self):
-    pass
+def server_addfriend(message, connect_socket2):
+    print(message)
+    cur.execute("select * from user where name = %s", (message["friend_name"]))
+    row = cur.fetchone()
+    print(row)
+    print(row[0])
+    cur.execute("insert into friend (user_id, friend_user_id) values (%s, %s)", (message["id"], row[0]))
+    con.commit()
+    cur.execute("insert into friend (user_id, friend_user_id) values (%s, %s)", (row[0], message["id"]))
+    con.commit()
+    print("Add successfully!!")
+    connect_socket2.send("hello".encode())
 
 while 1:
     connection_socket, addr = server_socket.accept()
@@ -114,7 +124,7 @@ while 1:
         showAllThread=threading.Thread(target=server_showall,args=(message,))
         showAllThread.start()
     elif message["method"]=="addfriend":
-        addFriendThread=threading.Thread(target=server_addfriend,args=(message,))
+        addFriendThread=threading.Thread(target=server_addfriend,args=(message,connection_socket,))
         addFriendThread.start()
 
 connection_socket.close()
