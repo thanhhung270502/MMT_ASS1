@@ -82,7 +82,7 @@ def server_showall(mess):
     # connection_socket.send(data)
     send_text(connection_socket, jsonStr)
 
-def server_addfriend(self):
+def server_addfriend():
     pass
 
 while 1:

@@ -25,7 +25,7 @@ class Peer(QtWidgets.QMainWindow):
         self.serverIP=serverIP
         self.timer = QTimer()
         self.timer.timeout.connect(self.refresh)
-        self.timer.start(3000)
+        self.timer.start(10000)
         #Slot 0 bắt buộc phải là của server
 
         print("Start Client....")
