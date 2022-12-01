@@ -21,13 +21,13 @@ class Peer(QtWidgets.QMainWindow):
         super().__init__()
         #Slot 0 bắt buộc phải là của server
 
-        con = pymysql.connect(host="localhost", user="root",
-                              password="", database="mmt")
-        cur = con.cursor()
-        cur.execute("select id, name, IP, image from user")
+        # con = pymysql.connect(host="localhost", user="root",
+        #                       password="", database="mmt")
+        # cur = con.cursor()
+        # cur.execute("select id, name, IP, image from user")
 
-        rows = cur.fetchall()
-        lists = [list(x) for x in rows]
+        # rows = cur.fetchall()
+        # lists = [list(x) for x in rows]
 
         print("Start Client....")
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,7 +64,14 @@ class Peer(QtWidgets.QMainWindow):
         # print(data_res)
         # print(type(data_res))
 
-        self.friends = lists
+        # self.friends = lists
+        self.friends=[
+            [0,'Jack',"192.168.1.6",'https://e1.pngegg.com/pngimages/401/429/png-clipart-sharingan-all-files-mangekyo-sharingan.png'],
+            [1,'Alice',"192.168.1.4",'https://www.stockvault.net//data/2018/08/28/254043/thumb16.jpg'],
+            [2,'',"",''],
+            [3,'',"",''],
+            [4,'',"",'']
+        ]
 
         ####Init Listenner####
         self.serverPort=12000
