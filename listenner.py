@@ -76,7 +76,7 @@ class Catcher(QObject):
     def writeFile(self,name,size):
         buffersize=max((int(int(size)/(1024*1024))+1)*1024,1024)
         print("File Writing")
-        file=open(".\\Download\\"+name,"wb")
+        file=open(".\\Download\\"+name,"wb+")
         file_bytes=b""
         done=False
         while not done:

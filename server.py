@@ -72,6 +72,16 @@ def server_logout(mess):
     cur.execute("UPDATE user SET IP = %s WHERE id = %s", ("0.0.0.0", int(mess["id"])))
     con.commit()
 
+def server_showall(mess):
+    cur.execute("select id, name, IP, image from user where id != %s AND id not in (select friend_user_id from friend where user_id=%s)", (mess["id"],mess["id"]))
+    rows = cur.fetchall()
+    lists = [list(x) for x in rows]
+    jsonStr = json.dumps(lists)
+
+    # data = message.encode()
+    # connection_socket.send(data)
+    send_text(connection_socket, jsonStr)
+
 while 1:
     connection_socket, addr = server_socket.accept()
 
@@ -97,6 +107,9 @@ while 1:
     elif message["method"] == "logout":
         logoutThread=threading.Thread(target=server_logout, args=(message,))
         logoutThread.start()
+    elif message["method"]=="showall":
+        showAllThread=threading.Thread(target=server_showall,args=(message,))
+        showAllThread.start()
 
 connection_socket.close()
 server_socket.close()

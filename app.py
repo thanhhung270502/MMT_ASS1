@@ -242,7 +242,7 @@ class Ui_LogIn(object):
                 mess.exec_()
             else:
                 self.LogIn.close()
-                call(["python", "mainchat.py",response,self.Username.text()])
+                call(["python", "mainchat.py",response,self.Username.text(),serverIP])
 
             client_socket.close()
 
