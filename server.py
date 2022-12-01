@@ -16,7 +16,6 @@ def send_text(sending_socket, text):
     # data = text.encode()
     # sending_socket.send(data)
     sending_socket.sendall(bytes(text,encoding="utf-8"))
-    sending_socket.send(text)
 
 HOST = ''
 PORT = 8082
@@ -35,6 +34,7 @@ def server_login(mess):
         connection_socket.send(text.encode())
     else:
         cur.execute("UPDATE user SET IP = %s WHERE username = %s and password = %s", (message["ip"], message["user_name"], message["password"]))
+        con.commit()
         text = "Ok"
         connection_socket.send(text.encode())
 
@@ -70,6 +70,7 @@ while 1:
         loginThread=threading.Thread(target=server_login, args=(message,))
         loginThread.start()
     elif message["method"] == "show":
+        print(message)
         showThread=threading.Thread(target=server_show, args=(message,))
         showThread.start()
     elif message["method"] == "signup":
