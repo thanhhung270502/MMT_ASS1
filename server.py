@@ -66,6 +66,10 @@ def server_signup(message):
         connection_socket.send(text.encode())
 
 
+def server_logout(mess):
+    cur.execute("UPDATE user SET IP = %s WHERE id = %d", ("0.0.0.0", int(message["id"])))
+    con.commit()
+
 while 1:
     connection_socket, addr = server_socket.accept()
 
@@ -88,7 +92,9 @@ while 1:
     elif message["method"] == "signup":
         signupThread=threading.Thread(target=server_signup, args=(message,))
         signupThread.start()
-    
+    elif message["method"] == "logout":
+        logoutThread=threading.Thread(target=server_logout, args=(message,))
+        logoutThread.start()
 
 connection_socket.close()
 server_socket.close()
