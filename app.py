@@ -8,8 +8,8 @@ import socket
 import pickle
 
 HEADER_LENGTH = 10
-serverIP = "0.0.0.0"
 
+serverIP="192.168.111.133"
 
 class Ui_LogIn(object):
 
@@ -202,6 +202,7 @@ class Ui_LogIn(object):
         self.BtSignUp.clicked.connect(self.signup)
 
     def signin(self):
+        print("Signin")
         if self.Username.text() == "" or self.Password.text() == "":
             mess = QMessageBox()
             mess.setIcon(QMessageBox.Warning)
@@ -210,7 +211,10 @@ class Ui_LogIn(object):
         else:
             print("Start Client....")
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect(("172.17.133.129", 8082))
+
+            client_socket.connect((serverIP, 8082))
+            print("Sending")
+            
             hostname = socket.gethostname()
             ip_address = socket.gethostbyname(hostname)
             print(hostname)
@@ -225,7 +229,6 @@ class Ui_LogIn(object):
             msg = pickle.dumps(message)
             msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
             
-            print("Sending")
             client_socket.send(msg)
 
             text = client_socket.recv(1024)
