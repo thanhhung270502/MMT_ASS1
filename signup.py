@@ -6,6 +6,7 @@ import socket, pickle
 from subprocess import call
 
 HEADER_LENGTH = 10
+serverIP="192.168.111.133"
 
 class Ui_SignUp(object):
     def setupUi(self, SignUp):
@@ -105,7 +106,7 @@ class Ui_SignUp(object):
         else:
             print("Start Client....")
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect(("localhost", 8082))
+            client_socket.connect((serverIP, 8082))
             hostname = socket.gethostname()
             ip_address = socket.gethostbyname(hostname)
             print(hostname)

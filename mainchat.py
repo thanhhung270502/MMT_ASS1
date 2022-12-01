@@ -47,7 +47,8 @@ class Peer(QtWidgets.QMainWindow):
         print(mes)
         print(type(mes))
 
-        
+        self.friends=[[0,'Server',serverIP,""]]
+
         arr=mes.split("], [")
         arr[0]=arr[0][2:]
         arr[-1]=arr[-1][:-2]
@@ -55,7 +56,7 @@ class Peer(QtWidgets.QMainWindow):
             arr[i]=arr[i].split(', ')
             for ii in range(4):
                 arr[i][ii]=arr[i][ii].strip("\"")
-            arr[i][0]=int(arr[i][0])
+            arr[i][0]=i+1
 
         # data_res = pickle.loads(data)
         # print(data_res)
@@ -63,8 +64,9 @@ class Peer(QtWidgets.QMainWindow):
 
         client_socket.close()
 
-        self.friends=arr
-
+        for user in arr:
+            self.friends.append(user)
+        
         ####Init Listenner####
         self.serverPort=12000
         self.serverSocket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
