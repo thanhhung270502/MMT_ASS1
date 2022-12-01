@@ -11,17 +11,18 @@ import sys
 from connect import *
 from listenner import *
 import pymysql, pickle
+from UI_listfriend import *
 
 
 HEADER_LENGTH = 10
-serverIP="192.168.111.133"
     
 class Peer(QtWidgets.QMainWindow):
     startListen=Signal(bool)
-    def __init__(self,id,username):
+    def __init__(self,id,username,serverIP):
         super().__init__()
         self.id=id
         self.user=username
+        self.serverIP=serverIP
         #Slot 0 bắt buộc phải là của server
 
         #con = pymysql.connect(host="localhost", user="root",
@@ -34,7 +35,7 @@ class Peer(QtWidgets.QMainWindow):
 
         print("Start Client....")
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((serverIP, 8082))
+        client_socket.connect((self.serverIP, 8082))
 
         message = {}
         message["method"] = "show"
@@ -51,7 +52,7 @@ class Peer(QtWidgets.QMainWindow):
         print(mes)
         print(type(mes))
         
-        self.friends=[[0,'Server',serverIP,""]]
+        self.friends=[[0,'Server',self.serverIP,""]]
         if(mes!="[]"):
             arr=mes.split("], [")
             arr[0]=arr[0][2:]
@@ -104,7 +105,7 @@ class Peer(QtWidgets.QMainWindow):
             self.connection.pop(keys)
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((serverIP, 8082))
+        client_socket.connect((self.serverIP, 8082))
 
         message = {}
         message["method"] = "logout"
@@ -246,6 +247,7 @@ class Peer(QtWidgets.QMainWindow):
         self.BtAddFriend.setStyleSheet("border-image: url(./image/addfriend.png);")
         self.BtAddFriend.setText("")
         self.BtAddFriend.setObjectName("BtAddFriend")
+        self.BtAddFriend.clicked.connect(self.addFr)
         self.Search = QtWidgets.QLineEdit(self.centralwidget)
         self.Search.setGeometry(QtCore.QRect(55, 120, 435, 30))
         self.Search.setStyleSheet("background-color: rgba(240,240,240,255);\n"
@@ -478,7 +480,7 @@ class Peer(QtWidgets.QMainWindow):
 
         self.friends=[]
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((serverIP, 8082))
+        client_socket.connect((self.serverIP, 8082))
 
         message = {}
         message["method"] = "show"
@@ -495,7 +497,6 @@ class Peer(QtWidgets.QMainWindow):
         print(mes)
         print(type(mes))
         
-        self.friends=[[0,'Server',serverIP,""]]
         if(mes!="[]"):
             arr=mes.split("], [")
             arr[0]=arr[0][2:]
@@ -515,9 +516,17 @@ class Peer(QtWidgets.QMainWindow):
         # print(type(data_res))
 
         client_socket.close()
+
+        # data_res = pickle.loads(data)
+        # print(data_res)
+        # print(type(data_res))
+
+        client_socket.close()
         self.display()
         
-        
+    def addFr(self):
+        self.addUI=UI_AddFriend(self.id,self.serverIP)
+
     
 
     def display(self):
@@ -698,5 +707,5 @@ class Peer(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     print(sys.argv)
-    peer=Peer(int(sys.argv[1]),sys.argv[2])
+    peer=Peer(int(sys.argv[1]),sys.argv[2],sys.argv[3])
     sys.exit(app.exec_())

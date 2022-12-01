@@ -2,11 +2,70 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QMessageBox
+
 from subprocess import call
 import requests
+import socket
+import pickle
+import sys
+
+HEADER_LENGTH=10
 
 
-class Ui_Addfriend(object):
+class UI_AddFriend(QtWidgets.QMainWindow):
+    def __init__(self,id,serverIP):
+        super().__init__()
+        self.id=id
+        self.serverIP=serverIP
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((self.serverIP, 8082))
+        self.list=[]
+
+        message = {}
+        message["method"] = "showall"
+        message["id"]=self.id
+        message["ip"]=socket.gethostbyname(socket.gethostname())
+
+        msg = pickle.dumps(message)
+        msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+
+        client_socket.send(msg)
+
+        data = client_socket.recv(2048)
+        mes = data.decode()
+        print(mes)
+        print(type(mes))
+        
+        if(mes!="[]"):
+            arr=mes.split("], [")
+            arr[0]=arr[0][2:]
+            arr[-1]=arr[-1][:-2]
+            
+            for i in range(len(arr)):
+                arr[i]=arr[i].split(', ')
+                for ii in range(4):
+                    arr[i][ii]=arr[i][ii].strip("\"")
+                arr[i][0]=i+1
+                
+            for user in arr:
+                self.list.append(user)
+
+        # data_res = pickle.loads(data)
+        # print(data_res)
+        # print(type(data_res))
+
+        client_socket.close()
+
+
+        self.render()
+
+
+    def render(self):
+        Addfriend = QtWidgets.QDialog()
+        self.setupUi(Addfriend)
+        Addfriend.show()
+
+
     def setupUi(self, Addfriend, List):
         Addfriend.setObjectName("Addfriend")
         Addfriend.resize(532, 331)
@@ -278,12 +337,3 @@ class Ui_Addfriend(object):
         Addfriend.setWindowTitle(_translate("Addfriend", "Addfriend"))
         self.Add.setText(_translate("Addfriend", "Add"))
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Addfriend = QtWidgets.QDialog()
-    ui = Ui_Addfriend()
-    ui.setupUi(Addfriend)
-    Addfriend.show()
-    sys.exit(app.exec_())
