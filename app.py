@@ -1,3 +1,4 @@
+import res
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QApplication, QMainWindow, QPushButton
@@ -7,6 +8,7 @@ import socket
 import pickle
 
 HEADER_LENGTH = 10
+
 serverIP="192.168.111.133"
 
 class Ui_LogIn(object):
@@ -209,8 +211,10 @@ class Ui_LogIn(object):
         else:
             print("Start Client....")
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
             client_socket.connect((serverIP, 8082))
             print("Sending")
+            
             hostname = socket.gethostname()
             ip_address = socket.gethostbyname(hostname)
             print(hostname)
@@ -229,7 +233,7 @@ class Ui_LogIn(object):
 
             text = client_socket.recv(1024)
             response = text.decode()
-            print(response)
+            print(response) 
 
             if (response == "Not"):
                 mess = QMessageBox()
@@ -246,10 +250,10 @@ class Ui_LogIn(object):
 
     def signup(self):
         call("python", "signup.py")
-        
 
     def exit(self):
         self.LogIn.close()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
@@ -258,4 +262,3 @@ if __name__ == "__main__":
     ui.setupUi(LogIn)
     LogIn.show()
     sys.exit(app.exec_())
-        
