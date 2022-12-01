@@ -18,8 +18,10 @@ serverIP="192.168.111.133"
     
 class Peer(QtWidgets.QMainWindow):
     startListen=Signal(bool)
-    def __init__(self):
+    def __init__(self,id,username):
         super().__init__()
+        self.id=id
+        self.user=username
         #Slot 0 bắt buộc phải là của server
 
         #con = pymysql.connect(host="localhost", user="root",
@@ -96,6 +98,17 @@ class Peer(QtWidgets.QMainWindow):
         for keys in self.connection.keys():
             self.connection[keys].close()
             self.connection.pop(keys)
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((serverIP, 8082))
+
+        message = {}
+        message["method"] = "logout"
+        message["id"]=self.id
+        msg = pickle.dumps(message)
+        msg = bytes(f"{len(msg):<{HEADER_LENGTH}}", "utf-8") + msg
+        client_socket.send(msg)
+        client_socket.close()
 
         selfIP=socket.gethostbyname(socket.gethostname())
         selfPort=12000
@@ -202,7 +215,7 @@ class Peer(QtWidgets.QMainWindow):
         font.setBold(True)
         font.setWeight(75)
         self.Username.setFont(font)
-        self.Username.setObjectName("Username")
+        self.Username.setObjectName(self.user)
         self.Status = QtWidgets.QComboBox(self.centralwidget)
         self.Status.setGeometry(QtCore.QRect(120, 30, 91, 21))
         font = QtGui.QFont()
@@ -641,5 +654,6 @@ class Peer(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    peer=Peer()
+    print(sys.argv)
+    peer=Peer(int(sys.argv[1]),sys.argv[2])
     sys.exit(app.exec_())

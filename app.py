@@ -242,14 +242,15 @@ class Ui_LogIn(object):
                 mess.exec_()
             else:
                 self.LogIn.close()
-                call(["python", "mainchat.py"])
+                call(["python", "mainchat.py",response,self.Username.text()])
 
             client_socket.close()
 
             print("End Client....")
 
     def signup(self):
-        call("python", "signup.py")
+        self.LogIn.close()
+        call(["python", "signup.py"])
 
     def exit(self):
         self.LogIn.close()
