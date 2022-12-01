@@ -16,6 +16,7 @@ class Connection(QtWidgets.QMainWindow):
 
     def __init__(self,arr,conn,client):
         super().__init__()
+        self.sendingData=False
         self.client=client
         self.cilentSocket=conn
         self.arr=arr
@@ -30,43 +31,33 @@ class Connection(QtWidgets.QMainWindow):
         self.catcher.shutdown.connect(self.close)
         self.catcher.catchMessage.connect(self.displayMsg)
         self.startCatching.connect(self.catcher.catchMsgWrapper)
+        self.catcher.dataDone.connect(self.completeData)
+        self.catcher.dataReceived.connect(self.dataRes)
 
         self.catchThread.start()
         self.startCatching.emit(True)
 
-
-    def render(self):
-        self.setupUi(self.arr)
-        self.show()
-        if(self.client==1):
-            self.cilentSocket.send("#CHAT#".encode())
+    def dataRes(self,name):
+        print("Relistenning")
+        self.displayMsg((f"Received file {name}",2))
+        self.startCatching.emit(True)    
 
 
-    def closeEvent(self,event):
-        print("Offing")
-        try:
-            self.cilentSocket.send("#QUIT#".encode())
-        except:
-            self.signalRmvConn()
-            self.catchThread.exit()
-            print("Closing")
-            print("Bye")
-        else:
-            print("Ignoring")
-            event.ignore()
     
-    @Slot(str)    
-    def signalRmvConn(self):
-        self.rmvConn.emit(self.arr[2])
         
 
     #############################################################################
     ##################################   UI   ###################################
     #############################################################################
+    def render(self):
+        self.setupUi(self.arr)
+        self.show()
+        if(self.client==1):
+            self.cilentSocket.send("#CHAT#".encode())
     def setupUi(self,arr):
         self.chat=[]
         self.setObjectName("MainChat")
-        self.resize(730, 670)
+        self.resize(730, 700)
         self.setStyleSheet("background-color: rgb(240,248,255);")
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
@@ -125,6 +116,26 @@ class Connection(QtWidgets.QMainWindow):
         self.verticalLayout.setObjectName("verticalLayout")
         
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.File_Send = QtWidgets.QPushButton(self.centralwidget)
+        self.File_Send.setGeometry(QtCore.QRect(490, 660, 60, 30))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.File_Send.setFont(font)
+        self.File_Send.setStyleSheet("background-color: blue;\n"
+"color: white;")
+        self.File_Send.setObjectName("File_Send")
+        self.File_Send.clicked.connect(self.sendFile)
+        self.Path = QtWidgets.QLineEdit(self.centralwidget)
+        self.Path.setGeometry(QtCore.QRect(40, 660, 441, 31))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(12)
+        self.Path.setFont(font)
+        self.Path.setText("")
+        self.Path.setMaxLength(60)
+        self.Path.setObjectName("Path")
         self.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(arr)
@@ -146,10 +157,59 @@ class Connection(QtWidgets.QMainWindow):
         self.pushButton.setText(_translate("MainChat", "SEND"))
         self.IP.setText(_translate("MainChat", arr[2]))
         self.IP_2.setText(_translate("MainChat", arr[1]))
+        self.File_Send.setText("File")
 
+
+
+    ##########################################
+    #############  Sending Text   ############
+    ##########################################
     def sendLine(self):
-        self.cilentSocket.send(self.lineEdit.text().encode())
+        sentence="#CONTENT#"+self.lineEdit.text()
+        self.cilentSocket.send(sentence.encode())
         self.displayMsg((self.lineEdit.text(),1))
+        self.lineEdit.setText("")
+
+
+    ##########################################
+    #############  Sending Data   ############
+    ##########################################
+    startDataSending=Signal(bool)
+    startSendingDataBody=Signal(bool)
+    def sendFile(self):
+        self.sendingData=True
+        self.pushButton.setEnabled(False)
+        self.File_Send.setEnabled(False)
+
+        self.dataLink=DataLink(self.cilentSocket,self.Path.text())
+        self.dataThread=QThread()
+        self.dataLink.moveToThread(self.dataThread)
+
+        self.startDataSending.connect(self.dataLink.send)
+        self.startSendingDataBody.connect(self.dataLink.sendBody)
+        self.catcher.fileOK.connect(self.sendContentFile)
+        
+        self.displayMsg(("Sending file from "+self.Path.text(),2))
+        self.dataThread.start()
+        print("Start Sending")
+        self.startDataSending.emit(True)
+        
+
+    def sendContentFile(self):
+        print("File Body")
+        self.startSendingDataBody.emit(True)
+        self.startCatching.emit(True)
+
+    def completeData(self):
+        self.sendingData=False
+        self.pushButton.setEnabled(True)
+        self.File_Send.setEnabled(True)
+
+        self.dataThread.exit()
+
+        self.Path.setText("")
+        self.startCatching.emit(True)
+        print("Complete File Transfer")
 
     def displayMsg(self,group):
         sentence=group[0]
@@ -165,6 +225,8 @@ class Connection(QtWidgets.QMainWindow):
             newLabel.setStyleSheet("background-color: turquoise")
         elif (user==0):
             newLabel.setStyleSheet("background-color: pink")
+        elif (user==2):
+            newLabel.setStyleSheet("background-color: gray")
         newLabel.setObjectName("label")
         self.verticalLayout.addWidget(newLabel)
         _translate = QtCore.QCoreApplication.translate
@@ -173,4 +235,23 @@ class Connection(QtWidgets.QMainWindow):
 
         if(user==0):
             self.startCatching.emit(True)
-    
+
+
+    ##########################################
+    #############  Clean Closing  ############
+    ##########################################
+    @Slot(str)    
+    def signalRmvConn(self):
+        self.rmvConn.emit(self.arr[2])
+
+    def closeEvent(self,event):
+        try:
+            self.cilentSocket.send("#QUIT#".encode())
+        except:
+            self.signalRmvConn()
+            time.sleep(1)
+            self.catchThread.exit()
+            time.sleep(1)
+        else:
+            event.ignore()
+
