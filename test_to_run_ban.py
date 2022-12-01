@@ -1,0 +1,25 @@
+con = pymysql.connect(
+        host="localhost", user="root", password="htkieT0964643875", database="mmt")
+cur = con.cursor()
+cur.execute("select id,name,IP,image from user")
+rows = cur.fetchall()
+arr = np.array(rows)
+self.friends = []
+for i in range(len(arr)):
+    arr1 = np.array(rows[i])
+    new_arr = []
+    for j in range(len(arr1)):
+        if j == 0:
+            new_arr.append(int(arr1[j]))
+        else:
+            new_arr.append(arr1[j])
+    self.friends.append(new_arr)
+self.createUI()
+
+def createUI(self):
+    app = QtWidgets.QApplication(sys.argv)
+    Blacklist = WidgetWrap()
+    ui = Ui_Blacklist()
+    ui.setupUi(Blacklist, self.friends)
+    Blacklist.show()
+    sys.exit(app.exec_())

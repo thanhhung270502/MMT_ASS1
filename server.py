@@ -42,8 +42,8 @@ def server_login(message):
         connection_socket.send(text.encode())
 
 def server_show(message):
-    cur.execute("select id, name, IP, image from user")
-    # cur.execute("select id from user where id in (select id from friend where user_id = %s)", (message))
+    # cur.execute("select id, name, IP, image from user")
+    cur.execute("select id, name, IP, image from user where id in (select friend_user_id from friend where user_id = %s) and IP != '0.0.0.0'", (message["id"]))
     rows = cur.fetchall()
     lists = [list(x) for x in rows]
     jsonStr = json.dumps(lists)
@@ -67,7 +67,8 @@ def server_signup(message):
 
 
 def server_logout(mess):
-    cur.execute("UPDATE user SET IP = %s WHERE id = %d", ("0.0.0.0", int(message["id"])))
+    # print("UPDATE user SET IP = %s WHERE id = %i", ("0.0.0.0", int(mess["id"])))
+    cur.execute("UPDATE user SET IP = %s WHERE id = %s", ("0.0.0.0", int(mess["id"])))
     con.commit()
 
 while 1:
