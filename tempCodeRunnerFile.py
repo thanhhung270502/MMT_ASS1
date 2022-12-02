@@ -1,1 +1,3 @@
-20
+sentence="    ".strip()
+print(sentence)
+print(sentence=="")

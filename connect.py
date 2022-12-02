@@ -167,7 +167,7 @@ class Connection(QtWidgets.QMainWindow):
     ##########################################
     def sendLine(self):
         if(self.lineEdit.text()!=""):
-            sentence="#CONTENT#"+self.lineEdit.text()
+            sentence="#CONTENT#"+self.lineEdit.text().strip()
             self.cilentSocket.send(sentence.encode())
             self.displayMsg((self.lineEdit.text(),1))
             self.lineEdit.setText("")
